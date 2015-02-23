@@ -17,7 +17,7 @@ def _do_2d (data, border=' '):
     widths = _colwidth_2d(data)
     return [ border.join( j[0].ljust(j[1]) for j in zip(i, widths) ).rstrip() for i in data]
 
-def do (data, width=None, cols=None, delimiter=' ', border=' '):
+def do (data, width=None, cols=None, delimiter=None, border=' '):
     ''' Make input data column-aligned '''
     if width != None:
         # data should be in [str, str, str] format
@@ -31,6 +31,10 @@ def do (data, width=None, cols=None, delimiter=' ', border=' '):
         # data should be in [str, str, str] format
         return _do_2d( [i.split(delimiter) for i in data], border=border )
 
+    else:
+        # data should be in [str, str, str] format
+        return _do_2d( [i.split() for i in data], border=border )
+
     if all( isinstance(i, str) for i in data ):
         # data should be in [str, str, str] format
         return None
@@ -43,7 +47,7 @@ def _colwidth_2d (data):
     z = list( itertools.zip_longest(*data, fillvalue='') )
     return [max(strlen(j) for j in z[i]) for i in range(l)]
 
-def colwidth (data, width=None, cols=None, delimiter=' '):
+def colwidth (data, width=None, cols=None, delimiter=None):
     ''' Calculate the with of every column of input data '''
     if width != None:
         # data should be in [str, str, str] format
@@ -57,13 +61,16 @@ def colwidth (data, width=None, cols=None, delimiter=' '):
         # data should be in [str, str, str] format
         return _colwidth_2d( [i.split(delimiter) for i in data] )
 
+    else:
+        return _colwidth_2d( [i.split() for i in data] )
+
     if all( isinstance(i, str) for i in data ):
         # data should be in [str, str, str] format
         return None
 
     return _colwidth_2d(data)
 
-def print (data, width=None, cols=None, delimiter=' ', border=' ', file=sys.stdout, flush=False):
+def print (data, width=None, cols=None, delimiter=None, border=' ', file=sys.stdout, flush=False):
     for i in do(data, width=width, cols=cols, delimiter=delimiter, border=border):
         builtins.print(i, file=file, flush=flush)
 
@@ -71,7 +78,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='A tool that makes text column-aligned.')
     parser.add_argument('-c', '--columns',  type=int, dest='columns')
     parser.add_argument('-w', '--width',    type=int, dest='width')
-    parser.add_argument('-d', '--delimiter',type=str, dest='delimiter', default=' ')
+    parser.add_argument('-d', '--delimiter',type=str, dest='delimiter')
     parser.add_argument('-b', '--border',   type=str, dest='border',    default=' ')
     args = parser.parse_args()
 

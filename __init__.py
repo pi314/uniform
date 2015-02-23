@@ -1,6 +1,7 @@
 import itertools
 import sys
 import builtins
+import argparse
 
 def strlen (s):
     ''' Calculate the **visual** width of string s '''
@@ -15,7 +16,7 @@ def _do_2d (data, border=' '):
     widths = _colwidth_2d(data)
     return [ border.join( j[0].ljust(j[1]) for j in zip(i, widths) ).rstrip() for i in data]
 
-def do (data, width=None, cols=None, delimiter=None, border=' '):
+def do (data, width=None, cols=None, delimiter=' ', border=' '):
     ''' Make input data column-aligned '''
     if width != None:
         # data should be in [str, str, str] format
@@ -41,7 +42,7 @@ def _colwidth_2d (data):
     z = list( itertools.zip_longest(*data, fillvalue='') )
     return [max(strlen(j) for j in z[i]) for i in range(l)]
 
-def colwidth (data, width=None, cols=None, delimiter=None):
+def colwidth (data, width=None, cols=None, delimiter=' '):
     ''' Calculate the with of every column of input data '''
     if width != None:
         # data should be in [str, str, str] format
@@ -61,7 +62,20 @@ def colwidth (data, width=None, cols=None, delimiter=None):
 
     return _colwidth_2d(data)
 
-def print (data, width=None, cols=None, delimiter=None, border=' ', file=sys.stdout, flush=False):
+def print (data, width=None, cols=None, delimiter=' ', border=' ', file=sys.stdout, flush=False):
     for i in do(data, width=width, cols=cols, delimiter=delimiter, border=border):
         builtins.print(i, file=file, flush=flush)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='A tool that makes text column-aligned.')
+    parser.add_argument('-c', '--columns',  type=int, dest='columns')
+    parser.add_argument('-w', '--width',    type=int, dest='width')
+    parser.add_argument('-d', '--delimiter',type=str, dest='delimiter', default=' ')
+    parser.add_argument('-b', '--border',   type=str, dest='border',    default=' ')
+    args = parser.parse_args()
+
+    data = [i.rstrip() for i in sys.stdin.readlines()]
+
+    builtins.print(args)
+    print(data, width=args.width, cols=args.columns, delimiter=args.delimiter, border=args.border)
 

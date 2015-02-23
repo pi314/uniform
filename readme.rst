@@ -31,6 +31,11 @@ Command line tool
     $ uniform -d ',' < data.csv
     $ uniform --delimiter ',' < data.csv
 
+* Set border ::
+
+    $ uniform -b '|' < data
+    $ uniform --border '|' < data
+
 Python Module
 ~~~~~~~~~~~~~
 
@@ -54,14 +59,14 @@ These functions takes several arguments
 
   - Note that if ``data`` is already 2-dimensional, this argument shall not be passed in
 
-* ``delimiter=None``
+* ``delimiter=' '``
 
   - Used to seperate input data
   - Cannot be used for 2-dimensional ``data``
 
 * ``border=' '`` (``print()`` and ``do()`` only)
 
-  - Used to seperate columns
+  - Used to seperate columns in output
 
 * ``file=sys.stdout`` (``print()`` only)
 

@@ -46,19 +46,32 @@ These functions takes several arguments
 
   - 1- or 2-dimensional ``list`` of ``str``
 
-* ``cols``, indicates the number of columns you want
+* ``cols=None``, indicates the number of columns you want
 
   - Note that if ``data`` is already 2-dimensional, this argument shall not be passed in
 
-* ``width``, limits the length of output string
+* ``width=None``, limits the length of output string
 
   - Note that if ``data`` is already 2-dimensional, this argument shall not be passed in
 
-* ``delimiter``
+* ``delimiter=None``
 
   - Used to seperate input data
   - Cannot be used for 2-dimensional ``data``
-  - Note that this argument is conflict with ``cols`` and ``width`` argument
+
+* ``border=' '`` (``print()`` and ``do()`` only)
+
+  - Used to seperate columns
+
+* ``file=sys.stdout`` (``print()`` only)
+
+  - Where to print the output
+
+* ``Flush=False`` (``print()`` only)
+
+  - Whether to forcibly flush the stream
+
+``cols``, ``width``, and ``delimiter`` are mutually exclusive
 
 Examples
 

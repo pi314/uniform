@@ -2,87 +2,99 @@
 Uniform
 =======
 
-A tool that makes text column-aligned.
+A data column-aligned tool
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Usage
------
+:Author: π
+:Copyright: WTFPL
+
 
 Command line tool
-~~~~~~~~~~~~~~~~~
+=================
 
-* Quick start ::
+* :code:`uniform` will automatically detect screen`s width
+
+  .. code:: sh
 
     $ uniform < data
 
-  - ``uniform`` will automatically detect screen`s width
+* Set column numbers
 
-* Set column numbers ::
+  .. code:: sh
 
     $ uniform -c 5 < data
     $ uniform --columns 5 < data
 
-* Set display width ::
+* Set display width
+
+  .. code:: sh
 
     $ uniform -w 80 < data
     $ uniform --width 80 < data
 
-* Set delimiter ::
+* Set delimiter 
+
+  .. code:: sh
 
     $ uniform -d ',' < data.csv
     $ uniform --delimiter ',' < data.csv
 
-* Set border ::
+* Set border 
+
+  .. code:: sh
 
     $ uniform -b '|' < data
     $ uniform --border '|' < data
 
+
 Python Module
-~~~~~~~~~~~~~
+=============
 
-``uniform`` module provides several functions
+:code:`uniform` module provides several functions
 
-* ``do()``, returns a ``list`` of ``str`` for programmers to use
-* ``colwidth()``, returns a ``list`` of ``int``, contains the width of every column
-* ``print()``, output the result to the file desciptor given by programmer
+* :code:`do()`, returns a :code:`list` of :code:`str` for programmers to use
+* :code:`colwidth()`, returns a :code:`list` of :code:`int`, contains the width of every column
+* :code:`print()`, output the result to the file desciptor given by programmer
 
 These functions takes several arguments
 
-* ``data``
+* :code:`data`
 
-  - 1- or 2-dimensional ``list`` of ``str``
+  - 1- or 2-dimensional :code:`list` of :code:`str`
 
-* ``cols=None``, indicates the number of columns you want
+* :code:`cols=None`, indicates the number of columns you want
 
-  - Note that if ``data`` is already 2-dimensional, this argument shall not be passed in
+  - Note that if :code:`data` is already 2-dimensional, this argument shall not be passed in
 
-* ``width=None``, limits the length of output string
+* :code:`width=None`, limits the length of output string
 
-  - Note that if ``data`` is already 2-dimensional, this argument shall not be passed in
+  - Note that if :code:`data` is already 2-dimensional, this argument shall not be passed in
 
-* ``delimiter=' '``
+* :code:`delimiter=' '`
 
   - Used to seperate input data
-  - Cannot be used for 2-dimensional ``data``
+  - Cannot be used for 2-dimensional :code:`data`
 
-* ``border=' '`` (``print()`` and ``do()`` only)
+* :code:`border=' '` (:code:`print()` and :code:`do()` only)
 
   - Used to seperate columns in output
 
-* ``file=sys.stdout`` (``print()`` only)
+* :code:`file=sys.stdout` (:code:`print()` only)
 
   - Where to print the output
 
-* ``Flush=False`` (``print()`` only)
+* :code:`Flush=False` (:code:`print()` only)
 
   - Whether to forcibly flush the stream
 
-``cols``, ``width``, and ``delimiter`` are mutually exclusive
+:code:`cols`, :code:`width`, and :code:`delimiter` are mutually exclusive
 
 Examples
+--------
 
-* ``do()``
+* :code:`do()`
 
-..  code :: python
+  ..  code :: python
 
     >>> import uniform
     >>> data = ['a', 'bb', 'ccc', 'aaa2', 'bb2', 'c2']
@@ -107,9 +119,9 @@ Examples
     a bb  ccc
       bb2 c2
 
-* ``colwidth()``
+* :code:`colwidth()`
 
-..  code :: python
+  ..  code :: python
 
     >>> import uniform
     >>> data = ['a', 'bb', 'ccc', 'aaa2', 'bb2', 'c2']
@@ -126,7 +138,7 @@ Examples
 
 * 2-dimensional Data
 
-..  code :: python
+  ..  code :: python
 
     >>> import uniform
     >>> data = [

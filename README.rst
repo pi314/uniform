@@ -32,14 +32,14 @@ Command Line Tool
     $ uniform -w 80 < data
     $ uniform --width 80 < data
 
-* Set delimiter 
+* Set delimiter
 
   .. code:: sh
 
     $ uniform -d ',' < data.csv
     $ uniform --delimiter ',' < data.csv
 
-* Set border 
+* Set border
 
   .. code:: sh
 
@@ -50,41 +50,31 @@ Command Line Tool
 Python Functions
 ================
 
-:code:`uniform` module provides several functions.
+:code:`uniform` module provide a function :code:`do`.
+See the example below:
 
->>> import uniform
->>> data = ['a', 'bb', 'ccc', 'aaa2', 'bb2', 'c2']
->>> result = uniform.do(data, cols=3)
->>> print(result)
-['a    bb  ccc', 'aaa2 bb2 c2']
->>> for i in result: print(i)
-a    bb  ccc
-aaa2 bb2 c2
->>> result = uniform.do(data, width=8)
->>> print(result)
-['a   bb', 'ccc aaa2', 'bb2 c2']
->>> for i in result: print(i)
-a   bb
-ccc aaa2
-bb2 c2
->>> data = ['a;bb;ccc', ';bb2;c2']
->>> result = uniform.do(data, delimiter=';')
->>> print(result)
-['a bb  ccc', '  bb2 c2']
->>> for i in result: print(i)
-a bb  ccc
-  bb2 c2
->>> import uniform
->>> data = [
-...   ['a', 'bb', 'ccc'],
-...   ['aaa2', 'bb2', 'c2'],
-...   ['a3', 'bbbbb3', 'ccc3']
-... ]
->>> result = uniform.do(data)
->>> print(result)
-['a    bb     ccc', 'aaa2 bb2    c2', 'a3   bbbbb3 ccc3']
->>> for i in result: print(i)
-a    bb     ccc
-aaa2 bb2    c2
-a3   bbbbb3 ccc3
+.. code:: python
 
+   >>> from uniform import do
+   >>> one_dim_data = ['a','b','c','aaa','bbb','ccc']
+   >>> print( sep='\n', *do(one_dim_data, cols=3) )
+   a   b   c
+   aaa bbb ccc
+   >>> print( sep='\n', *do(one_dim_data, width=8) )
+   a   b
+   c   aaa
+   bbb ccc
+   >>>
+   >>> csv_data = ['a,b,c',',bbb,ccc']
+   >>> print( sep='\n', *do(csv_data, delimiter=',') )
+   a b   c
+     bbb ccc
+   >>> two_dim_data = [
+   ...     ['a', 'bb', 'ccc'],
+   ...     ['aaaa', 'bbb', 'cc'],
+   ...     ['aa', 'bbbbbb', 'cccc']
+   ... ]
+   >>> print( sep='\n', *do(two_dim_data) )
+   a    bb     ccc
+   aaaa bbb    cc
+   aa   bbbbbb cccc

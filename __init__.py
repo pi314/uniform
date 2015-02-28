@@ -32,7 +32,6 @@ aa   bbbbbb cccc
 import itertools
 import sys
 import builtins
-import argparse
 
 
 def strlen (s):
@@ -107,23 +106,28 @@ def colwidth (data, width=None, cols=None, delimiter=None):
     return _colwidth_2d(data)
 
 
-def print (data, width=None, cols=None, delimiter=None, border=' ',
-           file=sys.stdout, flush=False):
+def print (data, width=None, cols=None, delimiter=None,
+           border=' ', file=sys.stdout, flush=False):
     for i in do(data, width=width, cols=cols, delimiter=delimiter, border=border):
         builtins.print(i, file=file, flush=flush)
 
 
-if __name__ == '__main__':
+def run_command ():
+    import argparse
+
     parser = argparse.ArgumentParser(description='A tool that makes text column-aligned.')
-    parser.add_argument('-c', '--columns',  type=int, dest='columns')
-    parser.add_argument('-w', '--width',    type=int, dest='width')
-    parser.add_argument('-d', '--delimiter',type=str, dest='delimiter')
     parser.add_argument('-b', '--border',   type=str, dest='border',    default=' ')
-    args = parser.parse_args()
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-c', '--columns',  type=int, dest='cols')
+    group.add_argument('-w', '--width',    type=int, dest='width')
+    group.add_argument('-d', '--delimiter',type=str, dest='delimiter')
 
-    data = [line.rstrip() for line in sys.stdin()]
+    kwargs = vars(parser.parse_args())
+    data = [line.rstrip() for line in sys.stdin]
+    print(data, **kwargs)
 
-    builtins.print(args)
-    print(data, width=args.width, cols=args.columns,
-          delimiter=args.delimiter, border=args.border)
+
+
+if __name__ == '__main__':
+   run_command()
 

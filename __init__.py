@@ -19,15 +19,15 @@ def _do_2d (data, border=' '):
 
 def do (data, width=None, cols=None, delimiter=None, border=' '):
     ''' Make input data column-aligned '''
-    if width != None:
+    if width is not None:
         # data should be in [str, str, str] format
         ...
 
-    if cols != None:
+    if cols is not None:
         # data should be in [str, str, str] format
         return _do_2d( _to_2d(data, cols), border=border )
 
-    if delimiter != None:
+    if delimiter is not None:
         # data should be in [str, str, str] format
         return _do_2d( [i.split(delimiter) for i in data], border=border )
 
@@ -49,15 +49,15 @@ def _colwidth_2d (data):
 
 def colwidth (data, width=None, cols=None, delimiter=None):
     ''' Calculate the with of every column of input data '''
-    if width != None:
+    if width is not None:
         # data should be in [str, str, str] format
         ...
 
-    if cols != None:
+    if cols is not None:
         # data should be in [str, str, str] format
         return _colwidth_2d( _to_2d(data, cols) )
 
-    if delimiter != None:
+    if delimiter is not None:
         # data should be in [str, str, str] format
         return _colwidth_2d( [i.split(delimiter) for i in data] )
 

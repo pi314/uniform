@@ -50,7 +50,7 @@ def _colwidth_2d (data):
     return [max(len(j) for j in z[i]) for i in range(l)]
 
 
-def gen_colwidth(data, *, key=None, val=None) -> (int, int, ...):
+def gen_colwidth(data, *, key=None, val=None) -> [int]:
     '''
     generate width of columns from data
     '''

@@ -29,10 +29,6 @@ aa   bbbbbb cccc
 '''
 
 
-import itertools
-import builtins
-
-
 def _to_2d (data, cols):
     ''' Change 1D list data into a 2D list according to cols '''
     return [ data[i:i+cols] for i in range(0, len(data), cols) ]
@@ -46,6 +42,8 @@ def _do_2d (data, border=' '):
 
 def _colwidth_2d (data):
     ''' Calculate the width of every column of a 2D list'''
+    import itertools
+
     print(data)
     l = max( len(i) for i in data )
     z = list( itertools.zip_longest(*data, fillvalue='') )
@@ -54,6 +52,9 @@ def _colwidth_2d (data):
 
 def do (data, width=None, cols=None, delimiter=None, border=' '):
     ''' Make input data column-aligned '''
+
+    # It should check input data and parameters
+    ...
 
     if any(not isinstance(i, str) for i in data ):
         return _do_2d(data, border=border)

@@ -30,7 +30,6 @@ aa   bbbbbb cccc
 
 
 import itertools
-import sys
 import builtins
 
 
@@ -94,7 +93,7 @@ def colwidth (data, width=None, cols=None, delimiter=None):
 
 
 def run_command ():
-    import argparse
+    import argparse, sys
 
     parser = argparse.ArgumentParser(description='A tool that makes text column-aligned.')
     parser.add_argument('-b', '--border',   type=str, dest='border',    default=' ')
@@ -104,9 +103,8 @@ def run_command ():
     group.add_argument('-d', '--delimiter',type=str, dest='delimiter')
 
     kwargs = vars(parser.parse_args())
-
-    for row in do([line.rstrip() for line in sys.stdin], **kwargs):
-        print(row)
+    rows = do([line.rstrip() for line in sys.stdin], **kwargs)
+    sys.stdout.write('\n'.join(rows)+'\n')
 
 
 if __name__ == '__main__':

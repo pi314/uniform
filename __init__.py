@@ -50,11 +50,46 @@ def _colwidth_2d (data):
     return [max(len(j) for j in z[i]) for i in range(l)]
 
 
-def do (data, width=None, cols=None, delimiter=None, border=' '):
+def gen_colwidth(data, *, key=None, val=None) -> (int, int, ...):
+    '''
+    generate width of columns from data
+    '''
+    ...
+
+
+def do (data, width:int=None, cols:int=None, delimiter:str=None, border=' '):
     ''' Make input data column-aligned '''
 
-    # It should check input data and parameters
-    ...
+    # check data type
+    if all(isinstance(item, str) for item in data):
+        is_2dim = False
+    elif all(all(isinstance(item, str) for item in row) for row in data):
+        is_2dim = True
+    else:
+        raise Exception
+
+    '''
+    # check parameters and generate process
+    paras = do.__annotations__
+    colwidth = None
+    if is_2dim:
+        for k in paras:
+            if locals()[k] is not None:
+                raise Exception
+        colwidth = gen_colwidth(data)
+    else:
+        for k, t in paras.items():
+            val = locals()[k]
+            if val is None:
+                continue
+            if not isinstance(val, t):
+                raise Exception
+            if colwidth is not None:
+                raise Exception
+            colwidth = gen_colwidth(data, key=k, val=val)
+
+    return gen_rows(data, colwidth=colwidth, border=border)
+    '''
 
     if any(not isinstance(i, str) for i in data ):
         return _do_2d(data, border=border)

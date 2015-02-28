@@ -41,24 +41,51 @@ def _do_2d (data, border=' '):
 
 
 def _colwidth_2d (data):
-    ''' Calculate the width of every column of a 2D list'''
     import itertools
 
-    print(data)
     l = max( len(i) for i in data )
     z = list( itertools.zip_longest(*data, fillvalue='') )
-    return [max(len(j) for j in z[i]) for i in range(l)]
+    L = [max(len(j) for j in z[i]) for i in range(l)]
+    return L
 
 
 def gen_colwidth(data, *, key=None, val=None) -> [int]:
     '''
     generate width of columns from data
     '''
-    ...
+    from itertools import zip_longest
+
+    if key is None:
+        row_nums = max(map(len, data))
+        cols = zip_longest(fillvalue='', *data)
+    elif key=='delimiter':
+        data = [row.split(val) for row in data]
+
+def gen_rows(data, border):
+    r'''
+    >>> rows = gen_rows([['a','b','c'], ['aa','bbbb','ccc']], '|')
+    >>> rows
+    ['a |b   |c', 'aa|bbbb|ccc']
+    >>> print(sep='\n', *rows)
+    a |b   |c
+    aa|bbbb|ccc
+    '''
+    from itertools import zip_longest
+
+    cols = zip_longest(fillvalue='', *data)
+    width_nums = (max(map(len, col)) for col in cols)
+    form = border.join('{:%i}' % width for width in width_nums)
+    rows = [form.format(*row).rstrip() for row in data]
+    return rows
 
 
 def do (data, width:int=None, cols:int=None, delimiter:str=None, border=' '):
-    ''' Make input data column-aligned '''
+    '''
+    Make input data column-aligned
+    ['a', 'b', 'c', 'd'] -> ['a b', 'c d']
+    ['a,b', 'c,d']       -> ['a b', 'c d']
+    [['a','b'],['c','d'] -> ['a b', 'c d']
+    '''
 
     # check data type
     if all(isinstance(item, str) for item in data):
@@ -70,15 +97,15 @@ def do (data, width:int=None, cols:int=None, delimiter:str=None, border=' '):
 
     '''
     # check parameters and generate process
-    paras = do.__annotations__
-    colwidth = None
+    annotations = do.__annotations__
     if is_2dim:
-        for k in paras:
+        for k in annotations:
             if locals()[k] is not None:
                 raise Exception
-        colwidth = gen_colwidth(data)
+        cleaned_data = clean(data)
     else:
-        for k, t in paras.items():
+        paras = None
+        for k, t in annotations.items():
             val = locals()[k]
             if val is None:
                 continue
@@ -86,9 +113,10 @@ def do (data, width:int=None, cols:int=None, delimiter:str=None, border=' '):
                 raise Exception
             if colwidth is not None:
                 raise Exception
-            colwidth = gen_colwidth(data, key=k, val=val)
+            paras = {'key':k, 'val':val}
+        cleaned_data = clean(data, **paras)
 
-    return gen_rows(data, colwidth=colwidth, border=border)
+    return gen_rows(cleaned_data, border=border)
     '''
 
     if any(not isinstance(i, str) for i in data ):

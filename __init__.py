@@ -1,4 +1,34 @@
 #!/usr/bin/env python
+
+r'''
+DocTest
+=======
+
+>>> print_ = lambda *a, **k: print(file=__import__('sys').stdout, *a, **k)
+>>> one_dim_data = ['a','b','c','aaa','bbb','ccc']
+>>> print_(one_dim_data, cols=3)
+a   b   c
+aaa bbb ccc
+>>> print_(one_dim_data, width=8)
+a   b
+c   aaa
+bbb ccc
+>>> csv_data = ['a,b,c',',bbb,ccc']
+>>> print_(csv_data, delimiter=',')
+a b   c
+  bbb ccc
+>>> two_dim_data = [
+...     ['a', 'bb', 'ccc'],
+...     ['aaaa', 'bbb', 'cc'],
+...     ['aa', 'bbbbbb', 'cccc']
+... ]
+>>> print_(two_dim_data)
+a    bb     ccc
+aaaa bbb    cc
+aa   bbbbbb cccc
+'''
+
+
 import itertools
 import sys
 import builtins

@@ -4,7 +4,7 @@ r'''
 DocTest
 =======
 
->>> p = lambda data, **kwargs : builtins.print(sep='\n', *do(data, **kwargs))
+>>> p = lambda data, **kwargs : print(sep='\n', *do(data, **kwargs))
 >>> one_dim_data = ['a','b','c','aaa','bbb','ccc']
 >>> p(one_dim_data, cols=3)
 a   b   c
@@ -47,7 +47,7 @@ def _do_2d (data, border=' '):
 
 def _colwidth_2d (data):
     ''' Calculate the width of every column of a 2D list'''
-    builtins.print(data)
+    print(data)
     l = max( len(i) for i in data )
     z = list( itertools.zip_longest(*data, fillvalue='') )
     return [max(len(j) for j in z[i]) for i in range(l)]
@@ -93,12 +93,6 @@ def colwidth (data, width=None, cols=None, delimiter=None):
     return _colwidth_2d(data)
 
 
-def print (data, width=None, cols=None, delimiter=None,
-           border=' ', file=sys.stdout, flush=False):
-    for i in do(data, width=width, cols=cols, delimiter=delimiter, border=border):
-        builtins.print(i, file=file, flush=flush)
-
-
 def run_command ():
     import argparse
 
@@ -112,7 +106,7 @@ def run_command ():
     kwargs = vars(parser.parse_args())
 
     for row in do([line.rstrip() for line in sys.stdin], **kwargs):
-        builtins.print(row)
+        print(row)
 
 
 if __name__ == '__main__':

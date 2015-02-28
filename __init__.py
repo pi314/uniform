@@ -82,7 +82,7 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--border',   type=str, dest='border',    default=' ')
     args = parser.parse_args()
 
-    data = [i.rstrip() for i in sys.stdin.readlines()]
+    data = [line.rstrip() for line in sys.stdin()]
 
     builtins.print(args)
     print(data, width=args.width, cols=args.columns, delimiter=args.delimiter, border=args.border)

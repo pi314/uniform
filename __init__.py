@@ -69,30 +69,6 @@ def do (data, width=None, cols=None, delimiter=None, border=' '):
         ...
 
 
-def colwidth (data, width=None, cols=None, delimiter=None):
-    ''' Calculate the with of every column of input data '''
-    if width is not None:
-        # data should be in [str, str, str] format
-        ...
-
-    if cols is not None:
-        # data should be in [str, str, str] format
-        return _colwidth_2d( _to_2d(data, cols) )
-
-    if delimiter is not None:
-        # data should be in [str, str, str] format
-        return _colwidth_2d( [i.split(delimiter) for i in data] )
-
-    else:
-        return _colwidth_2d( [i.split() for i in data] )
-
-    if all( isinstance(i, str) for i in data ):
-        # data should be in [str, str, str] format
-        return None
-
-    return _colwidth_2d(data)
-
-
 def run_command ():
     import argparse, sys
 

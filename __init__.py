@@ -9,12 +9,10 @@ DocTest
 >>> p(one_dim_data, cols=3)
 a   b   c
 aaa bbb ccc
-
-.. >>> p(one_dim_data, width=8)
-.. a   b
-.. c   aaa
-.. bbb ccc
-
+>>> p(one_dim_data, width=8)
+a   b
+c   aaa
+bbb ccc
 >>> csv_data = ['a,b,c',',bbb,ccc']
 >>> p(csv_data, delimiter=',')
 a b   c
@@ -68,17 +66,33 @@ def find_colwidth(seq, offset, max_length):
     >>> find_colwidth((1,2,1,1,2), 1, 6)
     (1, 2, 1)
     '''
+    from itertools import count, takewhile
+
+    def gen_with_given_cols(num_cols):
+        remainder = len(seq) % num_cols
+        offset = num_cols - remainder if remainder else 0
+        cols = arrange_seq_cols(seq=tuple(seq)+(0,)*offset, length=num_cols)
+        return tuple(max(col) for col in cols)
+
     # shorten test values
     num_cols = 1
     sorted_seq = sorted(seq, reverse=True)
-    while 1:
-        if sum(sorted_seq[:num_cols+1]) + offset*num_cols <= max_length:
-            num_cols += 1
-        else:
-            break
+    while sum(sorted_seq[:num_cols+1]) + offset*num_cols <= max_length:
+        num_cols += 1
 
     # try more columns
+    candidates = map(gen_with_given_cols, count(num_cols))
+    cond = lambda t: sum(t) + offset*(len(t)-1) <= max_length
+    for colwidth in takewhile(cond, candidates):
+        ...
+    return colwidth
 
+
+def gen_cols_from_seq(seq, num_cols):
+    remainder = len(seq) % num_cols
+    offset = num_cols - remainder if remainder else 0
+    cols = arrange_seq_cols(seq=tuple(seq)+('',)*offset, length=num_cols)
+    return cols
 
 
 def clean(data, *, key=None, val=None, border=' '):
@@ -90,7 +104,7 @@ def clean(data, *, key=None, val=None, border=' '):
     >>> clean(['a', 'b', 'c', 'd'], key='cols', val=3)
     ((('a', 'd'), ('b', ''), ('c', '')), (1, 1, 1))
     >>> clean(['a', 'b', 'c', 'd'], key='width', val=4)
-    (('a','c'), ('b','d'))
+    ((('a', 'c'), ('b', 'd')), (1, 1))
     '''
     if key is None:
         cols = trans_2dim_cols(data)
@@ -99,16 +113,13 @@ def clean(data, *, key=None, val=None, border=' '):
         cols = trans_2dim_cols(row.split(val) for row in data)
         return cols, get_colwidth(cols)
     elif key=='cols':
-        remainder = len(data) % 3
-        offset = val - remainder if remainder else 0
-        cols = arrange_seq_cols(seq=tuple(data)+('',)*offset, length=val)
+        cols = gen_cols_from_seq(data, num_cols=val)
         return cols, get_colwidth(cols)
     elif key=='width':
         widths = tuple(map(len, data))
-        print('widths:', widths)
         colwidth = find_colwidth(widths, offset=len(border), max_length=val)
-        print('colwidth', colwidth)
-
+        cols = gen_cols_from_seq(data, num_cols=len(colwidth))
+        return cols, colwidth
 
 
 def gen_combined_rows(cols, colwidth, border):

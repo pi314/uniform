@@ -5,18 +5,20 @@ DocTest
 =======
 
 >>> p = lambda data, **kwargs : print(sep='\n', *do(data, **kwargs))
->>> one_dim_data = ['a','b','c','aaa','bbb','ccc']
->>> p(one_dim_data, cols=3)
-a   b   c
-aaa bbb ccc
->>> p(one_dim_data, width=8)
-a   b
-c   aaa
-bbb ccc
->>> csv_data = ['a,b,c',',bbb,ccc']
->>> p(csv_data, delimiter=',')
-a b   c
-  bbb ccc
+
+.. >>> one_dim_data = ['a','b','c','aaa','bbb','ccc']
+.. >>> p(one_dim_data, cols=3)
+.. a   b   c
+.. aaa bbb ccc
+.. >>> p(one_dim_data, width=8)
+.. a   b
+.. c   aaa
+.. bbb ccc
+.. >>> csv_data = ['a,b,c',',bbb,ccc']
+.. >>> p(csv_data, delimiter=',')
+.. a b   c
+..   bbb ccc
+
 >>> two_dim_data = [
 ...     ['a', 'bb', 'ccc'],
 ...     ['aaaa', 'bbb', 'cc'],
@@ -49,34 +51,63 @@ def _colwidth_2d (data):
     return L
 
 
-def gen_colwidth(data, *, key=None, val=None) -> [int]:
-    '''
-    generate width of columns from data
-    '''
+def get_colwidth(cols):
+    return tuple(max(map(len, col)) for col in cols)
+
+
+def trans_2dim_cols(rows):
     from itertools import zip_longest
+    return tuple(zip_longest(fillvalue='', *rows))
 
-    if key is None:
-        row_nums = max(map(len, data))
-        cols = zip_longest(fillvalue='', *data)
-    elif key=='delimiter':
-        data = [row.split(val) for row in data]
 
-def gen_rows(data, border):
+def arrange_seq(seq, length):
+    return tuple(seq[start::length] for start in range(length))
+
+
+def clean(data, *, key=None, val=None):
     r'''
-    >>> rows = gen_rows([['a','b','c'], ['aa','bbbb','ccc']], '|')
-    >>> rows
+    return cleaned columns
+
+    >>> clean([['a','b'],['c','d']])
+    ((('a', 'c'), ('b', 'd')), (1, 1))
+    >>> clean(['a,b', 'c,d'], key='delimiter', val=',')
+    ((('a', 'c'), ('b', 'd')), (1, 1))
+    >>> clean(['a', 'b', 'c', 'd'], key='cols', val=3)
+    ((('a', 'd'), ('b', ''), ('c', '')), (1, 1, 1))
+    >>> clean(['a', 'b', 'c', 'd'], key='width', val=4)
+    (('a','c'), ('b','d'))
+    '''
+    if key is None:
+        cols = trans_2dim_cols(data)
+        return cols, get_colwidth(cols)
+    elif key=='delimiter':
+        cols = trans_2dim_cols(row.split(val) for row in data)
+        return cols, get_colwidth(cols)
+    elif key=='cols':
+        offset = val - len(data) % 3
+        cols = arrange_seq(seq=tuple(data)+('',)*offset, length=val)
+        return cols, get_colwidth(cols)
+    elif key=='width':
+        ...
+
+
+
+def gen_combined_rows(cols, colwidth, border):
+    r'''
+    given columns, generate combined rows
+
+    >>> cols = [['a','aa'], ['b','bbbb'], ['c','ccc']]
+    >>> colwidth = (2, 4, 3)
+    >>> c_rows = gen_combined_rows(cols, colwidth, '|')
+    >>> c_rows
     ['a |b   |c', 'aa|bbbb|ccc']
-    >>> print(sep='\n', *rows)
+    >>> print(sep='\n', *c_rows)
     a |b   |c
     aa|bbbb|ccc
     '''
-    from itertools import zip_longest
-
-    cols = zip_longest(fillvalue='', *data)
-    width_nums = (max(map(len, col)) for col in cols)
-    form = border.join('{:%i}' % width for width in width_nums)
-    rows = [form.format(*row).rstrip() for row in data]
-    return rows
+    form = border.join('{:%i}' % width for width in colwidth)
+    combined_rows = [form.format(*row).rstrip() for row in zip(*cols)]
+    return combined_rows
 
 
 def do (data, width:int=None, cols:int=None, delimiter:str=None, border=' '):
@@ -95,14 +126,13 @@ def do (data, width:int=None, cols:int=None, delimiter:str=None, border=' '):
     else:
         raise Exception
 
-    '''
     # check parameters and generate process
     annotations = do.__annotations__
     if is_2dim:
         for k in annotations:
             if locals()[k] is not None:
                 raise Exception
-        cleaned_data = clean(data)
+        cols, colwidth = clean(data)
     else:
         paras = None
         for k, t in annotations.items():
@@ -111,14 +141,14 @@ def do (data, width:int=None, cols:int=None, delimiter:str=None, border=' '):
                 continue
             if not isinstance(val, t):
                 raise Exception
-            if colwidth is not None:
+            if paras is not None:
                 raise Exception
             paras = {'key':k, 'val':val}
-        cleaned_data = clean(data, **paras)
+        cols, colwidth = clean(data, **paras)
 
-    return gen_rows(cleaned_data, border=border)
+    return gen_combined_rows(cols, colwidth=colwidth, border=border)
+
     '''
-
     if any(not isinstance(i, str) for i in data ):
         return _do_2d(data, border=border)
 
@@ -130,6 +160,7 @@ def do (data, width:int=None, cols:int=None, delimiter:str=None, border=' '):
         return _do_2d( [i.split(delimiter) for i in data], border=border )
     else:
         ...
+    '''
 
 
 def run_command ():

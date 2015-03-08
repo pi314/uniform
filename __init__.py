@@ -28,146 +28,89 @@ aaaa bbb    cc
 aa   bbbbbb cccc
 '''
 
+def typechecking(func):
+    annotations = func.__annotations__
+    assertion_form = "type of argument '{}' should be {}".format
+    def func_(*args, **kwargs):
+        for arg_name in kwargs:
+            assert isinstance(kwargs[arg_name], annotations[arg_name]), \
+                   format(arg_name, annotations[arg_name])
+        return func(*args, **kwargs)
+    return func_
 
-def get_colwidth(cols):
-    '''
-    >>> cols = (('a', 'aa'), ('bbbb', 'b'))
-    >>> get_colwidth(cols)
-    (2, 4)
-    '''
-    return tuple(max(map(len, col)) for col in cols)
 
-
-def trans_2dim_cols(rows):
-    '''
-    >>> rows = ((1, 2), (3,))
-    >>> trans_2dim_cols(rows)
-    ((1, 3), (2, ''))
-    '''
+def gen_columns_and_widths(rows):
     from itertools import zip_longest
-    return tuple(zip_longest(fillvalue='', *rows))
+
+    def transpose(rows):
+        return tuple(zip_longest(fillvalue='', *rows))
+
+    def compute_widths(columns):
+        return tuple(max(map(len, col)) for col in columns)
+
+    columns = transpose(rows)
+    widths = compute_widths(columns)
+    return columns, widths
 
 
-def arrange_seq_cols(seq, length):
-    '''
-    >>> seq = (0,1,2,3,4,5)
-    >>> arrange_seq_cols(seq, 3)
-    ((0, 3), (1, 4), (2, 5))
-    >>> arrange_seq_cols(seq, 2)
-    ((0, 2, 4), (1, 3, 5))
-    '''
-    return tuple(seq[start::length] for start in range(length))
+def gen_columns_and_widths_with_delimiter(data, delimiter):
+    rows = tuple(line.split(delimiter) for line in data)
+    return gen_columns_and_widths(rows)
 
 
-def find_colwidth(seq, offset, max_length):
-    '''
-    >>> find_colwidth((1,2,2,1,1), 1, 6)
-    (2, 2)
-    >>> find_colwidth((1,2,1,1,2), 1, 6)
-    (1, 2, 1)
-    '''
+def gen_columns_and_widths_with_cols(data, cols):
+    rows = tuple(data[i:i+cols] for i in range(0,len(data),cols))
+    return gen_columns_and_widths(rows)
+
+
+def gen_columns_and_widths_with_width(data, width, border):
     from itertools import count, takewhile
 
-    def gen_with_given_cols(num_cols):
-        remainder = len(seq) % num_cols
-        offset = num_cols - remainder if remainder else 0
-        cols = arrange_seq_cols(seq=tuple(seq)+(0,)*offset, length=num_cols)
-        return tuple(max(col) for col in cols)
+    def choose(cond, iterobj):
+        obj = next(iterobj)
+        for obj in takewhile(cond, iterobj):
+            pass
+        return obj
 
-    # shorten test values
-    num_cols = 1
-    sorted_seq = sorted(seq, reverse=True)
-    while sum(sorted_seq[:num_cols+1]) + offset*num_cols <= max_length:
-        num_cols += 1
+    def width_condition(obj):
+        columns, widths = obj
+        return sum(widths)+(len(widths)-1)*len(border) <= width
 
-    # try more columns
-    candidates = map(gen_with_given_cols, count(num_cols))
-    cond = lambda t: sum(t) + offset*(len(t)-1) <= max_length
-    for colwidth in takewhile(cond, candidates):
-        ...
-    return colwidth
+    candidates = (gen_columns_and_widths_with_cols(data, cols) for cols in count(1))
+    return choose(width_condition, candidates)
 
 
-def gen_cols_from_seq(seq, num_cols):
-    remainder = len(seq) % num_cols
-    offset = num_cols - remainder if remainder else 0
-    cols = arrange_seq_cols(seq=tuple(seq)+('',)*offset, length=num_cols)
-    return cols
-
-
-def clean(data, *, key=None, val=None, border=' '):
-    r'''
-    >>> clean([['a','b'],['c','d']])
-    ((('a', 'c'), ('b', 'd')), (1, 1))
-    >>> clean(['a,b', 'c,d'], key='delimiter', val=',')
-    ((('a', 'c'), ('b', 'd')), (1, 1))
-    >>> clean(['a', 'b', 'c', 'd'], key='cols', val=3)
-    ((('a', 'd'), ('b', ''), ('c', '')), (1, 1, 1))
-    >>> clean(['a', 'b', 'c', 'd'], key='width', val=4)
-    ((('a', 'c'), ('b', 'd')), (1, 1))
-    '''
-    if key is None:
-        cols = trans_2dim_cols(data)
-        return cols, get_colwidth(cols)
-    elif key=='delimiter':
-        cols = trans_2dim_cols(row.split(val) for row in data)
-        return cols, get_colwidth(cols)
-    elif key=='cols':
-        cols = gen_cols_from_seq(data, num_cols=val)
-        return cols, get_colwidth(cols)
-    elif key=='width':
-        widths = tuple(map(len, data))
-        colwidth = find_colwidth(widths, offset=len(border), max_length=val)
-        cols = gen_cols_from_seq(data, num_cols=len(colwidth))
-        return cols, colwidth
-
-
-def gen_combined_rows(cols, colwidth, border):
-    r'''
-    >>> cols = [['a','aa'], ['b','bbbb'], ['c','ccc']]
-    >>> colwidth = (2, 4, 3)
-    >>> c_rows = gen_combined_rows(cols, colwidth, '|')
-    >>> c_rows
-    ['a |b   |c', 'aa|bbbb|ccc']
-    >>> print(sep='\n', *c_rows)
-    a |b   |c
-    aa|bbbb|ccc
-    '''
-    form = border.join('{:%i}' % width for width in colwidth)
-    combined_rows = [form.format(*row).rstrip() for row in zip(*cols)]
-    return combined_rows
-
-
-def do (data, width:int=None, cols:int=None, delimiter:str=None, border=' '):
+@typechecking
+def do (data, *, width:int=None, cols:int=None, delimiter:str=None, border=' '):
     '''
     Make input data column-aligned
     ['a', 'b', 'c', 'd'] -> ['a b', 'c d']
     ['a,b', 'c,d']       -> ['a b', 'c d']
     [['a','b'],['c','d'] -> ['a b', 'c d']
     '''
-
-    # check data type
+    discriminant = sum(para is None for para in (delimiter, cols, width))
     if all(isinstance(item, str) for item in data):
-        is_2dim = False
+        assert discriminant==2
+        if delimiter is not None:
+            process_func = gen_columns_and_widths_with_delimiter
+            args = (delimiter,)
+        elif cols is not None:
+            process_func = gen_columns_and_widths_with_cols
+            args = (cols,)
+        elif width is not None:
+            process_func = gen_columns_and_widths_with_width
+            args = (width, border)
     elif all(all(isinstance(item, str) for item in row) for row in data):
-        is_2dim = True
+        assert discriminant==3
+        process_func = gen_columns_and_widths
+        args = ()
     else:
         raise AssertionError
 
-    # check parameters and generate process
-    vars_ = vars()
-    annos = do.__annotations__
-    ex_args = tuple((k,t,vars_[k]) for k,t in annos.items())
-    if is_2dim:
-        assert sum(v is None for k,t,v in ex_args)==3
-        cols, colwidth = clean(data)
-    else:
-        assert sum(v is None for k,t,v in ex_args)==2
-        key, type_, val = next(a for a in ex_args if a[2] is not None)
-        assert isinstance(val, type_), (key, type_, val)
-        cols, colwidth = clean(data, border=border, key=key, val=val)
-
-    return gen_combined_rows(cols, colwidth=colwidth, border=border)
+    columns, widths = process_func(data, *args)
+    form = border.join('{:%i}' % width for width in widths)
+    lines = [form.format(*row).rstrip() for row in zip(*columns)]
+    return lines
 
 
 def run_command ():

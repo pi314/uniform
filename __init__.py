@@ -32,8 +32,8 @@ def typechecking(func):
     annotations = func.__annotations__
     assertion_form = "type of argument '{}' should be {}".format
     def func_(*args, **kwargs):
-        for arg_name in kwargs:
-            if kwargs[arg_name] is None or arg_name not in annotations:
+        for arg_name in annotations:
+            if kwargs[arg_name] is None:
                 continue
             assert isinstance(kwargs[arg_name], annotations[arg_name]) or \
                    assertion_form(arg_name, annotations[arg_name])

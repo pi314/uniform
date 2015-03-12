@@ -56,7 +56,8 @@ def gen_columns_and_widths(rows):
 
 
 def gen_columns_and_widths_with_delimiter(data, delimiter):
-    rows = tuple(line.split(delimiter) for line in data)
+    import re
+    rows = tuple(re.split(delimiter, line) for line in data)
     return gen_columns_and_widths(rows)
 
 
@@ -126,6 +127,8 @@ def run_command ():
     group.add_argument('-d', '--delimiter',type=str, dest='delimiter')
 
     kwargs = vars(parser.parse_args())
+    kwargs['delimiter'] = ' +' if not kwargs['width'] and not kwargs['cols'] and not kwargs['delimiter']\
+        else kwargs['delimiter']
     rows = do([line.rstrip() for line in sys.stdin], **kwargs)
     sys.stdout.write('\n'.join(rows)+'\n')
 

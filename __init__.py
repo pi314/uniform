@@ -111,6 +111,9 @@ def do (data, *, width:int=None, cols:int=None, delimiter:str=None, border=' '):
         raise AssertionError
 
     columns, widths = process_func(data, *args)
+    tmp = list(filter(lambda x:x[1]>0, zip(columns, widths)))
+    columns = [i[0] for i in tmp]
+    widths =  [i[1] for i in tmp]
     form = border.join('{:%i}' % width for width in widths)
     lines = [form.format(*row).rstrip() for row in zip(*columns)]
     return lines
